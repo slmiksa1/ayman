@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اشتراك القهوة</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>اشتراك القهوة</h1>
+  <div id="app">
+    <div id="auth">
+      <h2>تسجيل الدخول / التسجيل</h2>
+      <input type="text" id="name" placeholder="الاسم">
+      <input type="text" id="phone" placeholder="رقم الجوال">
+      <button onclick="register()">التسجيل</button>
+      <button onclick="login()">تسجيل الدخول</button>
+    </div>
+    <div id="subscription" style="display:none;">
+      <h2>مرحبا <span id="userName"></span></h2>
+      <h2>اشتراكك الحالي</h2>
+      <p>عدد الأكواب المستخدمة: <span id="cupsUsed">0</span></p>
+      <p>عدد الأكواب المتبقية: <span id="cupsRemaining">40</span></p>
+      <button onclick="useCup()">استخدم كوب</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
