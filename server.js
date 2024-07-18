@@ -8,7 +8,9 @@ const port = process.env.PORT || 3000;
 
 // استخدام CORS
 app.use(cors({
-  origin: 'https://slmiksa1.github.io' // استبدل هذا بـ URL الخاص بموقع GitHub Pages الخاص بك
+  origin: 'https://slmiksa1.github.io', // استبدل هذا بـ URL الخاص بموقع GitHub Pages الخاص بك
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(bodyParser.json());
