@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 
 // استخدام CORS
 app.use(cors({
-  origin: 'https://slmiksa1.github.io', // استبدل هذا بـ URL الخاص بموقع GitHub Pages الخاص بك
+  origin: 'https://slmiksa1.github.io', // URL الخاص بموقع GitHub Pages الخاص بك
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -60,11 +60,4 @@ app.get('/subscriptions', async (req, res) => {
 
 app.put('/subscriptions/:id', async (req, res) => {
   const subscription = await Subscription.findById(req.params.id);
-  subscription.cupsUsed += 1;
-  await subscription.save();
-  res.send(subscription);
-});
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+ 
