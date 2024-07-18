@@ -14,7 +14,7 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // اتصال بقاعدة البيانات
-mongoose.connect('mongodb://localhost/coffee_subscription', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/coffee_subscription', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // تعريف نماذج البيانات
 const User = mongoose.model('User', new mongoose.Schema({
