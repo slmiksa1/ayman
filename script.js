@@ -74,49 +74,10 @@ async function createSubscription() {
       body: JSON.stringify({ userId })
     });
     
-    const subscription = await response.json();
-    subscriptionId = subscription._id;
-    updateSubscriptionView(subscription);
-  } catch (error) {
-    console.error('Error during subscription creation:', error);
-    alert('حدث خطأ أثناء إنشاء الاشتراك: ' + error.message);
-  }
-}
-
-async function getSubscription() {
-  try {
-    const response = await fetch(`${baseUrl}/subscriptions?userId=${userId}`);
-    const subscriptions = await response.json();
-    
-    if (subscriptions.length > 0) {
-      const subscription = subscriptions[0];
+    if (response.ok) {
+      const subscription = await response.json();
       subscriptionId = subscription._id;
       updateSubscriptionView(subscription);
-    }
-  } catch (error) {
-    console.error('Error during getting subscription:', error);
-    alert('حدث خطأ أثناء الحصول على الاشتراك: ' + error.message);
-  }
-}
-
-async function useCup() {
-  try {
-    const response = await fetch(`${baseUrl}/subscriptions/${subscriptionId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    const subscription = await response.json();
-    updateSubscriptionView(subscription);
-  } catch (error) {
-    console.error('Error during using cup:', error);
-    alert('حدث خطأ أثناء استخدام الكوب: ' + error.message);
-  }
-}
-
-function updateSubscriptionView(subscription) {
-  document.getElementById('auth').style.display = 'none';
-  document.getElementById('subscription').style.display = 'block';
-  document.getElementById('cupsUsed').textContent = subscription.cupsUsed;
-  document.getElementById('cupsRemaining').textContent = 40 - subscription.cupsUsed;
-}
+    } else {
+      const errorText = await response.text();
+     
