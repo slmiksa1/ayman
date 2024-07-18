@@ -1,6 +1,6 @@
 let userId;
 let subscriptionId;
-const baseUrl = 'https://slmiksa.herokuapp.com'; // تأكد من تغيير your-app-name إلى اسم تطبيق Heroku الخاص بك
+const baseUrl = 'https://slmiksa-f7b9b18887b7.herokuapp.com/'; // تأكد من تغيير your-app-name إلى اسم تطبيق Heroku الخاص بك
 
 async function register() {
   const name = document.getElementById('name').value;
