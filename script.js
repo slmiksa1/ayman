@@ -1,6 +1,9 @@
 let userId;
 let subscriptionId;
-const baseUrl = 'https://slmiksa-f7b9b18887b7.herokuapp.com/'; // تأكد من تغيير your-app-name إلى اسم تطبيق Heroku الخاص بك
+const baseUrl = 'https://slmiksa-f7b9b18887b7.herokuapp.com';
+
+document.getElementById('registerBtn').addEventListener('click', register);
+document.getElementById('loginBtn').addEventListener('click', login);
 
 async function register() {
   const name = document.getElementById('name').value;
@@ -11,19 +14,25 @@ async function register() {
     return;
   }
 
-  const response = await fetch(`${baseUrl}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, phone })
-  });
-  
-  if (response.ok) {
-    const user = await response.json();
-    userId = user._id;
-    document.getElementById('userName').textContent = user.name;
-    createSubscription();
-  } else {
-    alert('خطأ في التسجيل');
+  try {
+    const response = await fetch(`${baseUrl}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone })
+    });
+    
+    if (response.ok) {
+      const user = await response.json();
+      userId = user._id;
+      document.getElementById('userName').textContent = user.name;
+      createSubscription();
+    } else {
+      const errorText = await response.text();
+      alert('خطأ في التسجيل: ' + errorText);
+    }
+  } catch (error) {
+    console.error('Error during registration:', error);
+    alert('حدث خطأ أثناء التسجيل: ' + error.message);
   }
 }
 
@@ -35,53 +44,74 @@ async function login() {
     return;
   }
 
-  const response = await fetch(`${baseUrl}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone })
-  });
-  
-  if (response.ok) {
-    const user = await response.json();
-    userId = user._id;
-    document.getElementById('userName').textContent = user.name;
-    getSubscription();
-  } else {
-    alert('رقم الجوال غير صحيح');
+  try {
+    const response = await fetch(`${baseUrl}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    
+    if (response.ok) {
+      const user = await response.json();
+      userId = user._id;
+      document.getElementById('userName').textContent = user.name;
+      getSubscription();
+    } else {
+      const errorText = await response.text();
+      alert('رقم الجوال غير صحيح: ' + errorText);
+    }
+  } catch (error) {
+    console.error('Error during login:', error);
+    alert('حدث خطأ أثناء تسجيل الدخول: ' + error.message);
   }
 }
 
 async function createSubscription() {
-  const response = await fetch(`${baseUrl}/subscriptions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId })
-  });
-  
-  const subscription = await response.json();
-  subscriptionId = subscription._id;
-  updateSubscriptionView(subscription);
+  try {
+    const response = await fetch(`${baseUrl}/subscriptions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId })
+    });
+    
+    const subscription = await response.json();
+    subscriptionId = subscription._id;
+    updateSubscriptionView(subscription);
+  } catch (error) {
+    console.error('Error during subscription creation:', error);
+    alert('حدث خطأ أثناء إنشاء الاشتراك: ' + error.message);
+  }
 }
 
 async function getSubscription() {
-  const response = await fetch(`${baseUrl}/subscriptions?userId=${userId}`);
-  const subscriptions = await response.json();
-  
-  if (subscriptions.length > 0) {
-    const subscription = subscriptions[0];
-    subscriptionId = subscription._id;
-    updateSubscriptionView(subscription);
+  try {
+    const response = await fetch(`${baseUrl}/subscriptions?userId=${userId}`);
+    const subscriptions = await response.json();
+    
+    if (subscriptions.length > 0) {
+      const subscription = subscriptions[0];
+      subscriptionId = subscription._id;
+      updateSubscriptionView(subscription);
+    }
+  } catch (error) {
+    console.error('Error during getting subscription:', error);
+    alert('حدث خطأ أثناء الحصول على الاشتراك: ' + error.message);
   }
 }
 
 async function useCup() {
-  const response = await fetch(`${baseUrl}/subscriptions/${subscriptionId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' }
-  });
-  
-  const subscription = await response.json();
-  updateSubscriptionView(subscription);
+  try {
+    const response = await fetch(`${baseUrl}/subscriptions/${subscriptionId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    const subscription = await response.json();
+    updateSubscriptionView(subscription);
+  } catch (error) {
+    console.error('Error during using cup:', error);
+    alert('حدث خطأ أثناء استخدام الكوب: ' + error.message);
+  }
 }
 
 function updateSubscriptionView(subscription) {
