@@ -45,7 +45,7 @@ async function login() {
   }
 
   try {
-    const response = await fetch(`${baseUrl}/login`, {
+    const response = await fetch(`${baseUrl
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })
