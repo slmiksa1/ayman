@@ -9,7 +9,7 @@ body {
 }
 
 .background {
-  background-image: url('https://www.example.com/your-background-image.jpg'); /* استبدل بالرابط لصورة الخلفية */
+  background-image: url('https://cdn.pixabay.com/photo/2020/03/08/15/49/coffee-4912804_960_720.jpg'); /* استبدل بالرابط لصورة الخلفية */
   background-size: cover;
   background-position: center;
   position: absolute;
