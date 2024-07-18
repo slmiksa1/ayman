@@ -1,137 +1,70 @@
-let userId;
-let subscriptionId;
-const baseUrl = 'https://slmiksa-f7b9b18887b7.herokuapp.com';
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors'); // استيراد حزمة CORS
 
-document.getElementById('registerBtn').addEventListener('click', register);
-document.getElementById('loginBtn').addEventListener('click', login);
+const app = express();
+const port = process.env.PORT || 3000;
 
-async function register() {
-  const name = document.getElementById('name').value;
-  const phone = document.getElementById('phone').value;
-  
-  if (!name || !phone) {
-    alert('الرجاء إدخال الاسم ورقم الجوال');
-    return;
+// استخدام CORS
+app.use(cors({
+  origin: 'https://slmiksa1.github.io', // استبدل هذا بـ URL الخاص بموقع GitHub Pages الخاص بك
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(bodyParser.json());
+
+// اتصال بقاعدة البيانات
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/coffee_subscription', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// تعريف نماذج البيانات
+const User = mongoose.model('User', new mongoose.Schema({
+  name: String,
+  phone: String
+}));
+
+const Subscription = mongoose.model('Subscription', new mongoose.Schema({
+  userId: mongoose.Schema.Types.ObjectId,
+  startDate: { type: Date, default: Date.now },
+  cupsUsed: { type: Number, default: 0 },
+  endDate: { type: Date, default: () => new Date(+new Date() + 20*24*60*60*1000) }
+}));
+
+// مسارات التطبيق
+app.post('/register', async (req, res) => {
+  const user = new User(req.body);
+  await user.save();
+  res.send(user);
+});
+
+app.post('/login', async (req, res) => {
+  const user = await User.findOne({ phone: req.body.phone });
+  if (user) {
+    res.send(user);
+  } else {
+    res.status(401).send('رقم الجوال غير صحيح');
   }
+});
 
-  try {
-    const response = await fetch(`${baseUrl}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone })
-    });
-    
-    if (response.ok) {
-      const user = await response.json();
-      userId = user._id;
-      document.getElementById('userName').textContent = user.name;
-      createSubscription();
-    } else {
-      const errorText = await response.text();
-      alert('خطأ في التسجيل: ' + errorText);
-    }
-  } catch (error) {
-    console.error('Error during registration:', error);
-    alert('حدث خطأ أثناء التسجيل: ' + error.message);
-  }
-}
+app.post('/subscriptions', async (req, res) => {
+  const subscription = new Subscription(req.body);
+  await subscription.save();
+  res.send(subscription);
+});
 
-async function login() {
-  const phone = document.getElementById('phone').value;
-  
-  if (!phone) {
-    alert('الرجاء إدخال رقم الجوال');
-    return;
-  }
+app.get('/subscriptions', async (req, res) => {
+  const subscriptions = await Subscription.find({ userId: req.query.userId });
+  res.send(subscriptions);
+});
 
-  try {
-    const response = await fetch(`${baseUrl
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
-    });
-    
-    if (response.ok) {
-      const user = await response.json();
-      userId = user._id;
-      document.getElementById('userName').textContent = user.name;
-      getSubscription();
-    } else {
-      const errorText = await response.text();
-      alert('رقم الجوال غير صحيح: ' + errorText);
-    }
-  } catch (error) {
-    console.error('Error during login:', error);
-    alert('حدث خطأ أثناء تسجيل الدخول: ' + error.message);
-  }
-}
+app.put('/subscriptions/:id', async (req, res) => {
+  const subscription = await Subscription.findById(req.params.id);
+  subscription.cupsUsed += 1;
+  await subscription.save();
+  res.send(subscription);
+});
 
-async function createSubscription() {
-  try {
-    const response = await fetch(`${baseUrl}/subscriptions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId })
-    });
-    
-    if (response.ok) {
-      const subscription = await response.json();
-      subscriptionId = subscription._id;
-      updateSubscriptionView(subscription);
-    } else {
-      const errorText = await response.text();
-      alert('خطأ في إنشاء الاشتراك: ' + errorText);
-    }
-  } catch (error) {
-    console.error('Error during subscription creation:', error);
-    alert('حدث خطأ أثناء إنشاء الاشتراك: ' + error.message);
-  }
-}
-
-async function getSubscription() {
-  try {
-    const response = await fetch(`${baseUrl}/subscriptions?userId=${userId}`);
-    if (response.ok) {
-      const subscriptions = await response.json();
-      
-      if (subscriptions.length > 0) {
-        const subscription = subscriptions[0];
-        subscriptionId = subscription._id;
-        updateSubscriptionView(subscription);
-      }
-    } else {
-      const errorText = await response.text();
-      alert('خطأ في جلب الاشتراك: ' + errorText);
-    }
-  } catch (error) {
-    console.error('Error during getting subscription:', error);
-    alert('حدث خطأ أثناء الحصول على الاشتراك: ' + error.message);
-  }
-}
-
-async function useCup() {
-  try {
-    const response = await fetch(`${baseUrl}/subscriptions/${subscriptionId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    if (response.ok) {
-      const subscription = await response.json();
-      updateSubscriptionView(subscription);
-    } else {
-      const errorText = await response.text();
-      alert('خطأ في استخدام الكوب: ' + errorText);
-    }
-  } catch (error) {
-    console.error('Error during using cup:', error);
-    alert('حدث خطأ أثناء استخدام الكوب: ' + error.message);
-  }
-}
-
-function updateSubscriptionView(subscription) {
-  document.getElementById('auth').style.display = 'none';
-  document.getElementById('subscription').style.display = 'block';
-  document.getElementById('cupsUsed').textContent = subscription.cupsUsed;
-  document.getElementById('cupsRemaining').textContent = 40 - subscription.cupsUsed;
-}
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
