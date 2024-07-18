@@ -1,8 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors'); // استيراد حزمة CORS
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+
+// استخدام CORS
+app.use(cors({
+  origin: 'https://slmiksa1.github.io' // استبدل هذا بـ URL الخاص بموقع GitHub Pages الخاص بك
+}));
 
 app.use(bodyParser.json());
 
