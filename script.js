@@ -113,4 +113,25 @@ async function useCup() {
   try {
     const response = await fetch(`${baseUrl}/subscriptions/${subscriptionId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': '
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (response.ok) {
+      const subscription = await response.json();
+      updateSubscriptionView(subscription);
+    } else {
+      const errorText = await response.text();
+      alert('خطأ في استخدام الكوب: ' + errorText);
+    }
+  } catch (error) {
+    console.error('Error during using cup:', error);
+    alert('حدث خطأ أثناء استخدام الكوب: ' + error.message);
+  }
+}
+
+function updateSubscriptionView(subscription) {
+  document.getElementById('auth').style.display = 'none';
+  document.getElementById('subscription').style.display = 'block';
+  document.getElementById('cupsUsed').textContent = subscription.cupsUsed;
+  document.getElementById('cupsRemaining').textContent = 40 - subscription.cupsUsed;
+}
